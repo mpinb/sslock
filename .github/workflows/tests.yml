@@ -6,6 +6,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
+      - run: . .venv/bin/activate
+      - run: echo PATH=$PATH >> $GITHUB_ENV
       - run: pipx install flit
       - run: flit install
       - run: pytest
