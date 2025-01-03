@@ -49,6 +49,7 @@ def gpfs_file_lock(fn, allow_create=False, sleep=None):
     if sleep is None: sleep = [5,10]
     if allow_create and not os.path.isfile(fn): Path(fn).touch()
     busy = True
+    fthread = fproc = None
     while busy:
         try:
             fthread = open(fn, 'rb'); fproc = open(fn, 'rb+')
@@ -62,12 +63,14 @@ def gpfs_file_lock(fn, allow_create=False, sleep=None):
             #   concurrent file access, and this is an inefficient solution anyways, default
             #   to a relatively long randomized sleep range before trying again.
             time.sleep(sleep[0] if sleep[0] == sleep[1] else np.random.uniform(sleep[0], sleep[1]))
+            fthread = fproc = None
     return fthread, fproc
 
 
 def gpfs_file_unlock(fthread, fproc):
     # the order here is important (?), close in the opposite order they were locked.
-    fproc.close(); fthread.close()
+    if fproc is not None: fproc.close()
+    if fthread is not None: fthread.close()
 
 # generic locking functions on GPFS, works for thread safe and process safe, BUT not very efficient >>>
 
@@ -168,11 +171,17 @@ def dill_lock_and_dump(fn, d, f1=None, f2=None, lock_same_file=True):
 __fn_job_id = 'job_id.txt'
 __fn_special = 'Twas_brillig_and_the_slithy_toves.dill'
 __key_special = 'job_status'
+__msg_special = 'Twas brillig, and the slithy toves'
 
-def report_job_completed(fn_job_id=__fn_job_id, fn_special=__fn_special, key_special=__key_special):
+def report_job_completed(
+        fn_job_id=__fn_job_id,
+        fn_special=__fn_special,
+        key_special=__key_special,
+        msg_special=__msg_special,
+    ):
     batch_env_vars = ['SLURM_ARRAY_JOB_ID', 'SLURM_ARRAY_TASK_ID', 'SWARM_ARRAY_SUBJOB_ID']
     if all([x in os.environ for x in batch_env_vars]):
-        # job_id.txt should always be created as part of the submission process.
+        # file containing the slurm job id should always be created as part of the swarm submission process.
         # if it's not available, wait for up to about 10 minutes.
         count = 0
         while True:
@@ -188,10 +197,10 @@ def report_job_completed(fn_job_id=__fn_job_id, fn_special=__fn_special, key_spe
 
         # the reason that we are not locking the dill file itself here is because this
         #   would require that it gets pre-created. this seemed a rather unnecessary extra
-        #   step, so opted instead for locking `job_id.txt` which is always created as
-        #   part of the swarm submission process. running log-less without using swarm
-        #   will not allow this mechanism, and one would have to default back to the old
-        #   grepping for the special message in the output file mechanism instead.
+        #   step, so opted instead for locking the file containing the slurm job id which
+        #   is always created as part of the swarm submission process. running log-less without
+        #   using swarm will not allow this mechanism, and one would have to default back to the
+        #   old grepping for the special message in the standard output file mechanism instead.
         fn = fn_special
         topkey = key_special
         f1, f2 = gpfs_file_lock(fn_job_id)
@@ -203,7 +212,7 @@ def report_job_completed(fn_job_id=__fn_job_id, fn_special=__fn_special, key_spe
         dill_atomic_dump(fn, d)
         gpfs_file_unlock(f1,f2)
 
-    print('Twas brillig, and the slithy toves') # with --check-msg swarm reports slurm failure without message
+    print(msg_special) # for the legacy job completion checking mechanism that greps output logs
 
 
 def parse_job_completed(fn_job_id=__fn_job_id, fn_special=__fn_special, key_special=__key_special):

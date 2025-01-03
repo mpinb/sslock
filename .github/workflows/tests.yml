@@ -6,9 +6,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
-      - run: pipx install poetry
-      - run: poetry install --all-extras
-      - run: poetry run pytest
+      - run: pipx install flit
+      - run: flit install
+      - run: pytest
   install:
     runs-on: ubuntu-latest
     steps:

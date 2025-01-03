@@ -9,11 +9,15 @@ pip install git+ssh://git@github.com/mpinb/sslock.git
 ## Development
 
 ### Installation
-Install poetry
+Install flit
 ```
-poetry install --all-extras
+pip install flit
+```
+Install package
+```
+flit install
 ```
 ### Testing
 ```
-poetry run pytest
+pytest
 ```

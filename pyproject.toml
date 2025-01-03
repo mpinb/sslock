@@ -1,22 +1,40 @@
-[tool.poetry]
+[build-system]
+requires = ["flit_core >=3.10.1,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
 name = "sslock"
 version = "0.0.1"
 description = "low-level file locking for parallel access on gpfs (spectrum storage)"
-authors = ["Paul Watkins <pwatkins@gmail.com>"]
 readme = "README.md"
+authors = [
+    {name = "Paul Watkins", email = "pwatkins@gmail.com"},
+]
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+classifiers=[
+    "Private :: Do Not Upload",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+]
+# xxx - is there some advantage of getting these fields dynamically?
+#dynamic = ["version", "description"]
+dependencies = [
+    #"flit_core >=3.10.1",
+    "numpy >=1.20",
+    "dill >=0.3",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<3.13"
-numpy = ">=1.20"
-dill = "^0.3"
+[project.urls]
+#Documentation = "https://flit.pypa.io"
+Source = "https://github.com/mpinb/sslock"
 
-[tool.poetry.group.dev.dependencies]
-pytest = ">=7.4.4"
+[project.optional-dependencies]
+test = [
+    "pytest >=7.4.4",
+    #"pytest-cov",
+]
+#doc = ["sphinx"]
 
-[build-system]
-requires = ["poetry-core", "numpy", "setuptools"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.build]
-script = "build.py"
-generate-setup-file = true
+#[project.scripts]
+#flit = "flit:main"
