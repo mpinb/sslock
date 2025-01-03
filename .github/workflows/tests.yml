@@ -7,7 +7,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
       - run: python -m pip install flit pytest
-      #- run: python -m flit install || python -m pip install .
       - run: python -m flit install
       - run: python -m pytest
   install:
