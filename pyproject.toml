@@ -1,0 +1,39 @@
+[build-system]
+requires = ["flit_core >=3.10.1,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "sslock"
+version = "0.0.1"
+description = "low-level file locking for parallel access on gpfs (spectrum storage)"
+readme = "README.md"
+authors = [
+    {name = "Paul Watkins", email = "pwatkins@gmail.com"},
+]
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+classifiers=[
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+]
+# xxx - is there some advantage of getting these fields dynamically?
+#dynamic = ["version", "description"]
+dependencies = [
+    #"flit_core >=3.10.1",
+    "numpy >=1.20",
+    "dill >=0.3",
+]
+
+[project.urls]
+#Documentation = "https://flit.pypa.io"
+Source = "https://github.com/mpinb/sslock"
+
+[project.optional-dependencies]
+test = [
+    "pytest >=7.4.4",
+    #"pytest-cov",
+]
+#doc = ["sphinx"]
+
+#[project.scripts]
+#flit = "flit:main"
